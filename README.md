@@ -1,5 +1,12 @@
 # dsh-origin-thesis
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078d4.svg)](#requirements)
+[![Python: 3.9](https://img.shields.io/badge/Python-3.9-3776ab.svg)](#requirements)
+[![Origin: 2018+](https://img.shields.io/badge/Origin-2018%2B-orange.svg)](#requirements)
+[![DSH bundle](https://img.shields.io/badge/DSH-bundle-4b5563.svg)](cordis.patch.yml)
+[![tools: 12](https://img.shields.io/badge/MCP%20tools-12-6f42c1.svg)](#tools)
+
 **Format OriginLab Origin figures to a fixed house style from inside DeepSeek Harness.**
 One command turns a whole `.opju` project into publication-ready figures: per-layer
 grid layout, unified fonts and sizes, render-measured axis-title placement,
@@ -11,9 +18,9 @@ a command line.
 
 ```
 you:  把这份项目按论文格式重排，保留我手摆的图例
-      → thesis_format_project(project="...\MIL-101-S_graphs.opju",
+      → thesis_format_project(project="...\project.opju",
                               profile="thesis", keep_legend_pos=true)
-      → 23 figures reformatted, <name>_thesis.opju + <name>_thesis_figures/*.png
+      → 13 figures reformatted, <name>_thesis.opju + <name>_thesis_figures/*.png
 ```
 
 ---
@@ -286,6 +293,8 @@ README-thesis.md              internal reference: every tool, parameter and pitf
 README-origin-batch-style.md  the original scripts' engineering log
 sync_to_vendor.ps1            copy this repo to the DSH runtime directory
 THIRD-PARTY-NOTICES.md        Origin / originpro / dependency licensing and runtime needs
+CONTRIBUTING.md               how to run the smoke test, what needs discussion first
+tests/smoke.py                installation self-check (14 assertions, no DSH needed)
 ```
 
 ## Licence

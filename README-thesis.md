@@ -17,10 +17,10 @@
 
 | 对比项 | 我的产物 | 你的权威产物 | 差异 |
 |---|---|---|---|
-| `图3_pub` 页面 | 17.5 × 9.762 cm | 17.5 × 9.762 cm | **0** |
-| `图3_pub` 图层框架 | 12.19 × 5.063 cm，ratio 1.3716 | 同 | **0** |
-| `图4_pub` 页面 | 175.006 × 121.200 mm | 175.006 × 121.285 mm | 高度 0.085 mm※ |
-| PNG 像素（图3） | 4134 × 2306 | 4134 × 2306 | **0** |
+| composite 页面（regrid） | 17.5 × 9.762 cm | 同左 | **0** |
+| composite 图层框架 | 12.19 × 5.063 cm，ratio 1.3716 | 同左 | **0** |
+| composite 页面（8 层） | 175.006 × 121.200 mm | 175.006 × 121.285 mm | 高度 0.085 mm※ |
+| PNG 像素（composite） | 4134 × 2306 | 4134 × 2306 | **0** |
 | PNG dpi 元数据 | **600 dpi**（物理宽 17.501 cm） | 300 dpi（物理宽 35.001 cm） | **本插件已修正** |
 
 ※ 来自 `--regrid` 的 `round(...,4)` 在 cm/页面像素之间的一次取整，属设计内。
@@ -110,11 +110,11 @@
 
 ```
 # 单项目按论文版式（保留作者手摆的图例）
-thesis_format_project(project="...\MIL-101-S_graphs.opju", profile="thesis",
+thesis_format_project(project="...\project.opju", profile="thesis",
                       keep_legend_pos=true, out_dir="...\out")
 
 # 手工拼版大图 + 重排行距（页面按 3 行开好只放了 2 行时）
-thesis_format_composite(project="...\图3.opju", regrid=true, out_dir="...\out")
+thesis_format_composite(project="...\plate.opju", regrid=true, out_dir="...\out")
 
 # 批量：整个目录，递归
 thesis_batch(projects="D:\papers\thesis", recursive=true, out_dir="D:\figs")
@@ -138,7 +138,8 @@ thesis_style_set(profile="thesis", changes={"tick_pt": 8.5}, dry_run=false)  # �
 - 单张图慢是正常的：要起 Origin COM + 做像素量测闭环，单图约 18–25 秒，23 张约 6–10 分钟。
   工具超时已设 30 分钟。
 - 中文文件名：**不要**经 PowerShell 管道传参数——它会把 UTF-8 变成乱码
-  （实测 `图3` → `鍥?`）。在 DSH 里调用不受影响（JSON 直传）。
+  （实测中文文件名会被 PowerShell 管道破坏成乱码，把参数直接给进程则不受影响）。
+  在 DSH 里调用不受影响（JSON 直传）。
 - `thesis_verify_project` 报某层字号偏小（如 `fsize=7.5`）：先看返回里的
   `small_layers`。插图层（`inset` / `linked_inset`，如 NMR 的放大谱）的字号是
   "只缩不放"的，比正文小属于**预期**；校验器已自动把这些层标记为 small 并放行
@@ -158,14 +159,15 @@ thesis_style_set(profile="thesis", changes={"tick_pt": 8.5}, dry_run=false)  # �
 ### 一个已修的坑（值得记下）
 
 `verify_graph` 的 `small_layers` 参数不能省。早期版本我传了 `None`，导致插图层
-（如 `图拆` 的 `Graph18` L2，`linked_inset`，刻意用 7.5 pt）被误报成字号不符——
+（如某项目里 `Graph18` 的 L2，`linked_inset`，刻意用 7.5 pt）被误报成字号不符——
 **而同一 bug 让批量那轮的"零问题"变成假绿**。现在校验器会先跑
 `analyze_layers` 算出 small 集合再校验，口径与脚本自己的 `main()` 一致。
 
 
 ## 安装态
 
-- 插件包：`C:\Users\liuxc\dsh-vendor\dsh-origin-thesis\`
+- 插件包：`<包目录>`（默认按 README 里的位置，例如
+  `%USERPROFILE%\dsh-vendor\dsh-origin-thesis\`）
 - 挂载：web profile 的 `package.json`（`dsh-origin-thesis` bundle + link 依赖），
   junction 到 `node_modules\dsh-origin-thesis`
 - 条目：profile 的 `cordis.patch.yml` 里 `mcp-origin-thesis`

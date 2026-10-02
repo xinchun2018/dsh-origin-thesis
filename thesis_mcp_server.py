@@ -827,8 +827,8 @@ def thesis_format_graph(project: str, graph: str, profile: str = "thesis",
         os.path.dirname(src) or os.getcwd())
     stem = os.path.splitext(os.path.basename(src))[0] if src else "session"
     suffix = prof.get("output_suffix", "_thesis")
-    # 避免后缀叠加：对已格式化的产物（图拆_thesis.opju）再跑一次时不要变成
-    # 图拆_thesis_thesis.opju。
+    # 避免后缀叠加：对已格式化的产物（<项目>_thesis.opju）再跑一次时不要变成
+    # <项目>_thesis_thesis.opju。
     out_stem = stem if stem.endswith(suffix) else stem + suffix
     fig_dir = os.path.join(out_dir, f"{out_stem}_figures")
 
