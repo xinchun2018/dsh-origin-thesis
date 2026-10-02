@@ -5,7 +5,7 @@ r"""把 Origin 项目（.opju/.opj）里的所有图批量导出成图片文件�
 
 用法（必须用装了 originpro 的环境）：
 
-  C:\Users\liuxc\miniconda3\envs\origin\python.exe export_figures.py "某项目.opju"
+  python export_figures.py "某项目.opju"
 
   # 600 dpi PNG + 矢量 EMF，输出到指定目录，按项目管理器文件夹分子目录
   ... export_figures.py "某项目.opju" --type png,emf --dpi 600 --tree

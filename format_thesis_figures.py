@@ -16,8 +16,8 @@ r"""Batch-format Origin graphs to a uniform PhD-thesis figure style.
 原文件不会被修改：结果另存为 <原名>_thesis.opju，并按 600 dpi 实际尺寸导出 PNG。
 
 用法:
-  C:\Users\liuxc\miniconda3\envs\origin\python.exe format_thesis_figures.py ^
-      --project "C:\path\to\UNTITLED.opju" [--out-dir DIR] [--dpi 600] [--font "Times New Roman"]
+  python format_thesis_figures.py ^
+      --project "C:\path\to\PROJECT.opju" [--out-dir DIR] [--dpi 600] [--font "Times New Roman"]
 """
 from __future__ import annotations
 
@@ -89,111 +89,24 @@ ATTACH_PAGE = 1
 
 PANEL_LETTERS = "abcdefghijklmnopqrstuvwxyz"
 
-# 个别图的收尾微调（该图格式化完成后调用，传入 GPage；LabTalk 表达式里
-# 内嵌属性求值不可靠，数值一律在 Python 里读出算好再写常量）
-def _tweak_figS27(gpage) -> None:
-    """分类刻度标签过挤：旋转 30°，压缩 layer 高度，轴标题下移让位。
-
-    rotate 会让轴标题在下一次渲染时自动重排（覆盖手工位置），必须先
-    强制渲染一次消耗掉这次重排，再写标题位置。"""
-    lt("page.active = 1;")
-    lt("layer.unit = 3;")
-    lt("layer.height = 4.50;")
-    lt("layer.x.label.rotate = 30;")
-    yf, yt, h = ltf("layer.y.from"), ltf("layer.y.to"), ltf("layer.height")
-    if None in (yf, yt, h) or not h or yt == yf:
-        return
-    target = yf - 1.90 / h * (yt - yf)
-    tmp = os.path.join(tempfile.gettempdir(), "_origin_fmt_dummy.png")
-    # rotate 后的第一次渲染会自动重排轴标题、覆盖手工位置——
-    # 写入→渲染→读回校验，直到位置保住为止。
-    for _ in range(4):
-        lt(f"xb.y = {target:.8g};")
-        try:
-            gpage.save_fig(tmp, type="png", width=300)
-        except Exception as exc:
-            print(f"  [warn] FigS27 dummy render failed: {exc}")
-        got = ltf("xb.y")
-        if got is not None and abs(got - target) < abs(yt - yf) * 0.02:
-            break
-    else:
-        print(f"  [warn] FigS27 xb.y unstable: want {target:.4g} got {ltf('xb.y')}")
-    try:
-        os.remove(tmp)
-    except OSError:
-        pass
-
-
-def _tweak_figS16(gpage) -> None:
-    """图例默认位置（右上）与曲线平台期重叠，挪到右下空白区。"""
-    lt("page.active = 1;")
-    xf, xt_, yf, yt = (ltf("layer.x.from"), ltf("layer.x.to"),
-                       ltf("layer.y.from"), ltf("layer.y.to"))
-    if None not in (xf, xt_, yf, yt):
-        lt(f"legend.x = {xf + 0.72 * (xt_ - xf):.8g}; "
-           f"legend.y = {yf + 0.30 * (yt - yf):.8g};")
-
-
-def _tweak_graph8(gpage) -> None:
-    """分类轴刻度标签是很长的催化剂名（10%MIL-101(Cr)-TiO2 等）：改 45°
-    旋转并压低框架高度，否则标签会越过页面下边缘被裁掉。45° 比 30° 的
-    水平伸展短 1/3，最左那条也就不会顶出页面左边缘。"""
-    lt("page.active = 1;")
-    lt("layer.x.label.rotate = 45;")
-    lt("layer.unit = 3;")
-    lt("layer.height = 4.05;")
-
-
-def _tweak_graph12(gpage) -> None:
-    """FTIR 谱标注密集：框架缩窄后（字号是绝对 pt，文字相对面板变大）
-    官能团标签 C-N 与 Ti-O-C 挤到一起连成 "C-NTi-O-C"，把 C-N 下移
-    一行错开（不动 Ti-O-C：它上面紧挨着乙酸结构式图片）。只在**纵向**
-    挪——横坐标指着具体峰位，左右挪会指错峰。"""
-    lt("page.active = 1;")
-    lt("layer.unit = 3;")
-    yf, yt, h = ltf("layer.y.from"), ltf("layer.y.to"), ltf("layer.height")
-    cur = ltf("Text13.y")
-    if None in (yf, yt, h, cur) or not h or yt == yf:
-        print("  [warn] Graph12 tweak: 读不到 Text13.y / 轴范围")
-        return
-    target = cur - 0.36 / h * (yt - yf)
-    lt(f"Text13.y = {target:.8g};")
-    got = ltf("Text13.y")
-    if got is None or abs(got - target) > abs(yt - yf) * 0.02:
-        print(f"  [warn] Graph12 C-N 下移未生效: want {target:.4g} got {got}")
-
-
-def _tweak_graph16(gpage) -> None:
-    """XPS Ti 2p：顶面板右上角的谱线标签 "Ti 2p" 与结合能标注
-    "459.02 eV" 挤成一串，把 Ti 2p 下移错开（该处曲线是平基线，空的）。"""
-    lt("page.active = 1;")
-    lt("layer.unit = 3;")
-    yf, yt, h = ltf("layer.y.from"), ltf("layer.y.to"), ltf("layer.height")
-    cur = ltf("Text14.y")
-    if None in (yf, yt, h, cur) or not h or yt == yf:
-        print("  [warn] Graph16 tweak: 读不到 Text14.y / 轴范围")
-        return
-    target = cur - 0.25 / h * (yt - yf)
-    lt(f"Text14.y = {target:.8g};")
-    got = ltf("Text14.y")
-    if got is None or abs(got - target) > abs(yt - yf) * 0.02:
-        print(f"  [warn] Graph16 Ti 2p 下移未生效: want {target:.4g} got {got}")
-
-
-# 微调按**项目**分组：短名 Graph8/Graph12/… 在不同项目里是完全不同的图，
-# 只按图名匹配会张冠李戴（把 45° 旋转刻度标签套到别的项目的动力学曲线上）。
-# 外层 key 是输入 .opju 的文件名主干。
-PER_GRAPH_TWEAKS = {
-    "Revised SupportingInformation_graphs": {
-        "FigS27": _tweak_figS27,
-        "FigS16": _tweak_figS16,
-    },
-    "Revised manuscript_graphs": {
-        "Graph8": _tweak_graph8,
-        "Graph12": _tweak_graph12,
-        "Graph16": _tweak_graph16,
-    },
-}
+# 逐图微调表（按**项目**分组）。
+#
+# 设计理由：短名 Graph8 / Graph12 在不同项目里是完全不同的图，只按图名匹配会
+# 张冠李戴（把 45° 旋转的刻度标签套到另一个项目的动力学曲线上）。所以外层 key
+# 用输入 .opju 的文件名主干，内层 key 是图短名，值是接收 GPage 的微调函数。
+#
+#   PER_GRAPH_TWEAKS = {
+#       "<项目文件名主干>": {
+#           "<图短名>": <可调用对象，签名 (gpage) -> None>,
+#       },
+#   }
+#
+# 这里**刻意留空**：逐图微调是为具体稿件手工调出来的例外（哪个标签压住了哪条
+# 曲线、哪个文本框该下移几毫米），带很强的项目特异性，不适合随通用工具分发。
+# 在自己的项目里积攒微调时，照上面的形状往这里加即可 —— 每个微调函数在该图
+# 格式化完成后被调用，收到 GPage；注意 LabTalk 里内嵌属性求值不可靠，数值应当
+# 在 Python 侧读出算好再写常量。可用 --no-tweaks / no_tweaks=true 整体跳过。
+PER_GRAPH_TWEAKS = {}
 
 
 # ------------------------- LabTalk 小工具 -------------------------------- #
@@ -356,7 +269,7 @@ def is_legend_like(name: str, raw: str) -> bool:
 
     图例串按 `|`/换行切条目后**逐条**解析转义，整串外包 `\\b()` 会让第 1 条
     变粗体、最后一条尾巴多一个 `)`。对象名不一定是 Legend：作者常复制一个
-    文本对象当第二个图例（本项目 Fig8 的 `Text`、Graph4 的 `Text`），判据是
+    文本对象当第二个图例（本项目里被复制出来当图例的 `Text`），判据是
     含曲线标识转义 `\\l(n)`。"""
     if name.upper().startswith("LEGEND"):
         return True
@@ -516,7 +429,7 @@ def format_text_objects(glayer, font_idx: int,
             continue
         if upper in ("XB", "YL", "XT", "YR"):
             # XT/YR 多为占位符（空白或 %(?X)），但双 Y 轴图的右轴标题、
-            # 以及"X 轴反向 + 标题挂在右轴"的图（本项目 FTIR/XPS/NMR）
+            # 以及"X 轴反向 + 标题挂在右轴"的图（本项目的光谱类图）
             # 的可见 Y 标题就是 YR 对象，需与 XB/YL 同样处理。
             # 含 %( 替换串的标题（如 %(?X) 占位符）不能改写文本，
             # 包进 \b() 会破坏替换导致标题消失；只统一字体字号。
@@ -1007,7 +920,7 @@ def fit_axis_titles(gpage, layer_i: int, page_cm, frame_cm,
     if do_y:
         try_fit("yl.x", "left", w_y)
     if do_yr:
-        # X 轴反向的图里 YR 渲染在视觉左侧（本项目 FTIR/XPS/NMR）：先按
+        # X 轴反向的图里 YR 渲染在视觉左侧（本项目的光谱类图）：先按
         # xt 端所在侧量测，量不到再试另一侧；左侧被可见 YL 占用时不试左侧。
         first = "right" if xt > xf else "left"
         alt = None if (first == "right" and do_y) else \
@@ -1307,7 +1220,7 @@ def format_graph(gpage, font_idx: int) -> dict:
         left, top, width, height = cell_rect(layout, k, margins)
         # 层内有图片对象（TEM/结构式）时保持原框架宽高比：图片只能等比缩放，
         # 而挂在坐标轴上的标注是按框架各方向拉伸的——宽高比一变，标注就
-        # 对不上图片上的位置（本项目 Fig1 的 NMR 结构式化学位移标注）。
+        # 对不上图片上的位置（本项目的结构式图片旁化学位移标注）。
         ow, oh = x["cm"][2], x["cm"][3]
         if any(o["img"] for o in x["objs"]) and ow > 0 and oh > 0:
             old_a, new_a = ow / oh, width / height
@@ -1391,7 +1304,7 @@ def main() -> None:
     ap.add_argument("--keep-legend-pos", action="store_true",
                     help="不把图例挪到框架右上角（图例已手工摆在避开曲线的位置时用）")
     ap.add_argument("--no-tweaks", action="store_true",
-                    help="不套用本项目的逐图微调（PER_GRAPH_TWEAKS）")
+                    help="不套用逐图微调表（PER_GRAPH_TWEAKS）")
     ap.add_argument("--show-origin", action="store_true", help="显示 Origin 界面")
     args = ap.parse_args()
 

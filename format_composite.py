@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 r"""Unify typography / line weights of ONE hand-assembled composite Origin graph.
 
-针对"已经手工拼好的多面板大图"（本例 UNTITLED.opju 的 Graph111：3x3 网格，
+针对"已经手工拼好的多面板大图"（例如某拼版项目的一张 3x3 网格大图，
 8 个面板 + 3 个双 Y 叠加层 + 1 个放大插图，右下角缺一张图）：
 
 - **不重排版面**：面板位置/大小、标注锚点、插图、叠加层关系全部保持原样。
@@ -13,7 +13,7 @@ r"""Unify typography / line weights of ONE hand-assembled composite Origin graph
 - **统一线宽**：曲线、轴线、刻度线各一个值（原图曲线 0.43~1.0 pt 混用）。
 
 关键坑（详见 origin-batch-style/README.md）:
-- 文本里的 `\pNN(...)` 是**百分比字号倍数**且会覆盖对象 fsize（本图 FTIR 标题
+- 文本里的 `\pNN(...)` 是**百分比字号倍数**且会覆盖对象 fsize（本图某谱图标题
   `\p117` → 7x1.17≈8.2pt，峰位标注 `\p72` → 6.5x0.72≈4.7pt）。想让
   SetNumProp('fsize') 生效必须先剥掉这层包装 → 复用
   format_thesis_figures.strip_font_escapes。
@@ -25,8 +25,8 @@ r"""Unify typography / line weights of ONE hand-assembled composite Origin graph
 原文件不会被修改；结果另存。
 
 用法:
-  C:\Users\liuxc\miniconda3\envs\origin\python.exe format_composite.py ^
-      --project "C:\Users\liuxc\tu\UNTITLED.opju" [--page-w 17.5] [--dpi 600]
+  python format_composite.py ^
+      --project "C:\path\to\PROJECT.opju" [--page-w 17.5] [--dpi 600]
 """
 from __future__ import annotations
 
@@ -54,10 +54,10 @@ STYLE = {
     "font": "Times New Roman",
     "title_pt": 7.5,        # 轴标题（含双 Y 的右轴标题）
     "tick_pt": 6.5,         # 刻度数字（四条轴）
-    "series_pt": 6.5,       # 曲线标识 Ti-BDC-80 / N 1s 等
+    "series_pt": 6.5,       # 曲线标识（如样品代号 / 轨道标签 N 1s 等）
     "annot_pt": 5.5,        # 图内标注：峰位数字、失重百分数
     "legend_pt": 6.5,       # 图例
-    # 放大插图（本图 NMR 的 1.9 mm 微缩视图）整体保持原样：统一样式会把它
+    # 放大插图（本图某 1.9 mm 微缩视图）整体保持原样：统一样式会把它
     # 糊成黑块。只统一字体。
     "panel_pt": 8.0,        # (a)(b)(c)… 面板标签，粗体
     "panel_pad_px": 12,     # 面板标签与框架左/上缘的间隙（页面像素 @600dpi）
@@ -89,7 +89,7 @@ _NUMERIC_RE = re.compile(r"^[\d.,\s+\-]*\d[\d.,\s%+\-]*$")
 
 AXIS_TITLE_OBJS = ("XB", "YL", "XT", "YR")
 
-# 需要收回框架内的角色。图例框会随字号自动变大（本例 图3/图4 每个面板都有
+# 需要收回框架内的角色。图例框会随字号自动变大（拼版大图每个面板都有
 # 图例），原先贴着右框线的会溢出，所以和标注一起收边；轴标题在框架外，不收。
 CLAMP_ROLES = ("series", "annot", "legend")
 
@@ -168,7 +168,7 @@ def rescale_page(infos: list[dict], target_w_cm: float) -> tuple[float, float]:
     # 像素数在 Python 里 round 成整数常量写入（LabTalk 表达式会截断小数）
     lt(f"page.width = {int(round(target_w_cm / 2.54 * resx))};")
     lt(f"page.height = {int(round(new_h_cm / 2.54 * resy))};")
-    # 面板宽高对齐到众数值：手工拼图常有个别面板差零点几毫米（本图 L13 宽
+    # 面板宽高对齐到众数值：手工拼图常有个别面板差零点几毫米（本图某层宽
     # 6.164 vs 其余 6.147 cm），网格严格等宽才经得起排版检查。left/top 本就
     # 严格成列成行，保留各自原值。
     mains = [r for r in infos if r["kind"] == "main"]
@@ -205,7 +205,7 @@ def regrid_page(infos: list[dict], target_w_cm: float, row_gap_cm: float,
                 bottom_cm: float | None) -> tuple[float, float]:
     """缩到 target_w_cm 宽的同时把面板重排成**行距均匀**的网格并裁掉页面空白。
 
-    手工拼图的常见毛病：页面按 3 行开好但只放了 2 行 —— 本例 图3 六个面板
+    手工拼图的常见毛病：页面按 3 行开好但只放了 2 行 —— 例如某张六面板大图
     行距 3.96 cm（是所需留白的两倍）、底部还空 3.96 cm。列方向原样保留
     （左边距与列间距本来就等于 Y 轴标题/刻度数字所需宽度），只重算行位置、
     页高，顺带把面板尺寸对齐到众数值。
@@ -269,7 +269,7 @@ def format_axes(kind: str, font_idx: int) -> None:
 
     x2/y2 是顶轴/右轴：双 Y 轴图的右轴刻度数字属于叠加层的 y/y2，必须一并设。
 
-    **放大插图整个跳过**（只统一字体）：本图的 NMR 插图只有 1.9 mm 宽，
+    **放大插图整个跳过**（只统一字体）：本图的放大插图只有 1.9 mm 宽，
     统一的 2.6 pt 刻度长 + 0.75 pt 轴线会把整个插图糊成一个黑块，
     4.5 pt 的刻度数字也比框架本身还宽。它是手工做的局部放大视图而不是
     面板，原有的极小样式是刻意的，保持原样。
@@ -319,7 +319,7 @@ def thin_x_labels(width_cm: float, tick_pt: float) -> str | None:
     （间距 0.38 cm < 标签宽 0.46 cm）→ 糊成一团。按字符数估算标签宽度，
     把间隔提到最近的整齿值。
 
-    分类轴（label.type=2，柱状图的 Ti-BDC-80/120/150 文字标签）必须跳过，
+    分类轴（label.type=2，柱状图那一列文字标签）必须跳过，
     改 inc 会打乱文字标签与柱子的对应。
     """
     if int(ltf("layer.x.label.type") or 1) != 1:
@@ -352,7 +352,7 @@ def add_panel_labels(g, infos: list[dict], page_px, font_idx: int) -> list[str]:
     先用 `label -p`（框架内百分比，不接受负值）创建，再用页面像素
     SetLeft/SetTop 挪到框架外——已验证像素坐标可写且跨渲染保持。
 
-    放框架**左侧**会压住旋转 90° 的 Y 轴标题（本图 L10 的
+    放框架**左侧**会压住旋转 90° 的 Y 轴标题（本图某层的
     "Normalized intensity (a.u.)" 就在那个位置）；放框架**上方**用的是
     页边距/上一行 X 轴标题下方的空白，三行都够（首行上方 0.36 cm，
     8 pt 标签高约 0.28 cm）。
@@ -418,7 +418,7 @@ def clamp_texts(glayer, box, pad_px: float, legend_pad_px: float = None) -> list
     """把图内标注/曲线标识/图例收回图层框架内。
 
     面板缩小后字号按绝对 pt 给，文字相对面板变大了约 1.6 倍，原先手工摆放
-    刚好贴边的标注就会溢出框架（本图 FTIR/Raman 的 Ti-BDC-xxx 越过右边框，
+    刚好贴边的标注就会溢出框架（本图光谱系列名越过右边框，
     转 90° 的峰位标注探出下边框压住刻度数字）。
 
     对象的 GetLeft/GetWidth 是页面像素且 SetLeft/SetTop 可写（已验证写入后
@@ -426,7 +426,7 @@ def clamp_texts(glayer, box, pad_px: float, legend_pad_px: float = None) -> list
     不必处理轴反向/锚点语义。
 
     图例用更大的 pad：图例框长高后常被顶到贴着框线，正好压在贴边的那条
-    曲线上（图4 面板 a 的 Ti-BDC-180 平线就在下框线上方 0.05 cm）。
+    曲线上（某面板里那条平线就在下框线上方 0.05 cm）。
     """
     fl, ft, fw, fh = box
     moved = []
@@ -471,7 +471,7 @@ def separate_texts(glayer, box, gap_px: float) -> list[str]:
     """把互相重叠的图内标注/曲线标识分开（只在**垂直**方向推）。
 
     字号按最终印刷 pt 给出，页面缩小后文字相对面板变大约 1.35 倍，原先手工
-    留的间隙就吃光了（图3 面板 d 的 "Ti-BDC-150" 与峰位标注 "C=O" 原本水平
+    留的间隙就吃光了（某面板的曲线标识与峰位标注原本水平
     相邻 0.05 cm，缩放后直接叠在一起）。
 
     只推垂直方向：这些标注的横坐标指向具体峰位/谱线，左右挪会指错峰；上下
@@ -566,7 +566,7 @@ def format_texts(glayer, font_idx: int) -> tuple[list[str], int]:
     绝不改写文本——包 \b() 会破坏替换导致内容消失。
     **图例一律不改写文本**：图例串是"每条 `|` / 换行分隔一个条目"的独立语法，
     Origin 先切条目再逐条解析转义，整串外包一层 \b() 会让第 1 条粗体、
-    最后一条多出一个 `)`（图4 六个面板的图例都栽在这上面）。
+    最后一条多出一个 `)`（六个面板的图例全栽在这上面）。
     其余文本剥掉 \pNN/\f:/\b 包装（\pNN 会覆盖对象 fsize），bold 用外层
     \b() 重新表达，这样对象 fsize 才真正生效。
 
