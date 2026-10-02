@@ -32,19 +32,20 @@
   },
   "homepage": "https://github.com/xinchun2018/dsh-origin-thesis#readme",
   "files": [
-    "index.js",
-    "cordis.patch.yml",
-    "thesis_mcp_server.py",
-    "styles.json",
-    "format_thesis_figures.py",
-    "format_composite.py",
-    "export_figures.py",
-    "README.md",
-    "README-origin-batch-style.md",
-    "LICENSE",
     "CHANGELOG.md",
+    "LICENSE",
+    "README-origin-batch-style.md",
+    "README.md",
+    "THIRD-PARTY-NOTICES.md",
+    "cordis.patch.yml",
+    "export_figures.py",
+    "format_composite.py",
+    "format_thesis_figures.py",
+    "index.js",
+    "start-thesis-mcp.cmd",
+    "styles.json",
     "sync_to_vendor.ps1",
-    "start-thesis-mcp.cmd"
+    "thesis_mcp_server.py"
   ],
   "engines": {
     "node": ">=18"

@@ -26,7 +26,8 @@ $files = @(
     'format_composite.py',
     'export_figures.py',
     'README-thesis.md',
-    'LICENSE'
+    'LICENSE',
+    'THIRD-PARTY-NOTICES.md'
 )
 
 if (-not (Test-Path $Vendor)) {

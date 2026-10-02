@@ -244,6 +244,33 @@ frames, expgraph's undocumented argument traps). Read it before changing the scr
 
 ---
 
+## Relationship to the upstream `origin-batch-style` toolkit
+
+The three vendored scripts come from a private, actively used plotting toolkit of the
+same author (`origin-batch-style/`, driven from the command line). This repository ships
+a **curated variant** of them:
+
+| | upstream (private) | this repository |
+|---|---|---|
+| Per-figure exception table (`PER_GRAPH_TWEAKS`) | populated for specific manuscripts | **empty**, scheme documented instead |
+| Comments / docstrings | name the real samples, figures and project files | genericized (technical insights kept verbatim) |
+| Usage examples | machine-specific interpreter paths | `python` |
+| Everything else — layout logic, anchor calibration, overlap resolution, export and dpi correction | identical | identical |
+
+**If you maintain your own copy, it will not automatically receive fixes made here**, and
+vice versa. Two ways to keep them apart cleanly:
+
+- Keep your private toolkit as the source of truth for *your* figures and point
+  `DSH_THESIS_BATCH_DIR` at it. This repository's copy is then only the fallback for a
+  fresh install — no sync problem, because you never use it.
+- Or track this repository and re-apply your per-figure tweaks on top, using
+  `sync_to_vendor.ps1` to push the result into the DSH runtime directory.
+
+The regression used when this variant was cut: reformat a 13-graph project (0 errors,
+0 verify issues) and re-open the saved product to verify it read-only (`clean: true`).
+
+---
+
 ## Repository layout
 
 ```
@@ -258,10 +285,13 @@ export_figures.py         ┘    DSH_THESIS_BATCH_DIR)
 README-thesis.md              internal reference: every tool, parameter and pitfall
 README-origin-batch-style.md  the original scripts' engineering log
 sync_to_vendor.ps1            copy this repo to the DSH runtime directory
+THIRD-PARTY-NOTICES.md        Origin / originpro / dependency licensing and runtime needs
 ```
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE). Origin itself is commercial software licensed
-separately; `originpro` / `OriginExt` are BSD-licensed by OriginLab and installed by
-you, not redistributed here.
+MIT — see [LICENSE](LICENSE). Origin itself is commercial software licensed separately;
+`originpro` / `OriginExt` are BSD-licensed by OriginLab and installed by you, not
+redistributed here. Full details, including the optional runtime dependencies of the
+vendored scripts, are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
