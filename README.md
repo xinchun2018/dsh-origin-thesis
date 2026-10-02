@@ -235,9 +235,12 @@ frames, expgraph's undocumented argument traps). Read it before changing the scr
 - **Origin is an exclusive resource.** Formatting uses the single-instance COM server,
   so do not edit figures by hand in Origin while a batch is running.
 - **Python ≤ 3.9 for the interpreter** until OriginLab ships newer wheels.
-- The vendored scripts carry `PER_GRAPH_TWEAKS`, a table of per-figure exceptions built
-  for one specific thesis. Keep `--no-tweaks` (or `no_tweaks=true`) if your graphs
-  happen to share those names.
+- `PER_GRAPH_TWEAKS` ships **empty**. Per-figure exceptions are inherently
+  project-specific (which label collided with which curve, how many millimetres a text
+  box had to move), so the table is documented but not populated. Add your own entries
+  in the shape shown next to it in `format_thesis_figures.py` — the outer key is the
+  project file stem, because `Graph8` means different things in different projects.
+  It is applied automatically when a project matches, and `no_tweaks=true` skips it.
 
 ---
 
