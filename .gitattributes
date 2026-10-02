@@ -1,0 +1,16 @@
+# 行尾策略：显式固定，避免 git 的 autocrlf 在签出时重写行尾。
+#
+# 为什么要写这个文件：vendored 的绘图脚本是从作者原工具链**逐字节**复制过来的
+# （已用 SHA256 校验）。如果 git 在签出时把 LF 换成 CRLF，Python 仍能运行，
+# 但"与原件一致"这个保证就没了 —— 以后 diff 上游时会出现满屏行尾差异。
+
+* text=auto eol=lf
+
+# Windows 批处理必须是 CRLF：cmd.exe 解析以 LF 结尾的 .cmd 时，
+# goto/label 等结构可能出错。
+*.cmd text eol=crlf
+
+# 二进制/资源
+*.png binary
+*.opju binary
+*.xlsx binary

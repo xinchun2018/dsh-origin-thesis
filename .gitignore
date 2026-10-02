@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# vendored 脚本按需写出的报告目录（运行期生成）
+work/
+
+# Origin 产物（本地实验，不入库）
+*_thesis_figures/
+*_pub.png
+*_thesis.png
+*_thesis.opju
+*_pub.opju
+*.opju
+*.opj
+
+# 系统
+Thumbs.db
+desktop.ini
+.DS_Store

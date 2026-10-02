@@ -1,0 +1,135 @@
+{
+  "schema": "dsh-origin-thesis/styles@1",
+  "version": "1.0.0",
+  "updated": "2026-10-02",
+  "note": "共享样式档：博士论文插图格式的唯一真源。数值从 origin-batch-style/{format_thesis_figures.py,format_composite.py} 的已验证常量原值转录，未做改动。单位：除 _pt 结尾外均为 cm。",
+
+  "fonts": { "default": "Times New Roman" },
+
+  "export": {
+    "dpi": 600,
+    "fix_dpi_metadata": true,
+    "note_fix_dpi": "Origin 无论导出多少像素，写进文件的 dpi 一律是 300——600 dpi 的图插进 Word 会变成两倍大。需直接改文件头（PNG pHYs / TIFF 282,283 / JPEG JFIF / BMP PelsPerMeter），无损不重编码。",
+    "formats": {
+      "raster": ["png", "tif", "jpg", "bmp", "gif", "pcx", "tga", "psd"],
+      "vector": ["emf", "wmf", "pdf", "eps"],
+      "alias": { "tiff": "tif", "jpeg": "jpg", "ps": "eps" },
+      "unsupported_by_origin": ["tiff", "jpeg", "ps", "svg", "webp"]
+    }
+  },
+
+  "profiles": {
+    "thesis": {
+      "label": "博士论文插图（4:3 单图规格 + 多面板网格）",
+      "description": "按 layer 数自动排版。字体 Times New Roman。竖向堆叠谱图整叠算一个面板。",
+      "used_by": "origin-batch-style/format_thesis_figures.py",
+      "output_suffix": "_thesis",
+      "style": {
+        "font": "Times New Roman",
+        "tick_pt": 9,
+        "axis_title_pt": 10.5,
+        "axis_title_bold": true,
+        "panel_pt": 12,
+        "annot_pt": 8,
+        "legend_pt": 9,
+        "axis_thickness_pt": 1.0,
+        "tick_length_pt": 3.6,
+        "line_pt": 1.0,
+        "symbol_pt": 4,
+        "move_legend": true,
+        "export_dpi": 600
+      },
+      "layouts": {
+        "1": { "rows": 1, "cols": 1, "page_cm": [9.8594, 7.3999],
+               "margins_cm": { "left": 1.499, "right": 0.7704, "top": 0.5503, "bottom": 1.1516 },
+               "aspect": "4:3" },
+        "2": { "rows": 1, "cols": 2, "page_cm": [16.0, 7.4] },
+        "3": { "rows": 2, "cols": 2, "page_cm": [16.0, 13.2] },
+        "4": { "rows": 2, "cols": 2, "page_cm": [16.0, 13.2] },
+        "6": { "rows": 2, "cols": 3, "page_cm": [16.0, 10.4] },
+        "8": { "rows": 2, "cols": 4, "page_cm": [16.0, 8.6] }
+      },
+      "cell_margin_cm": { "left": 1.50, "right": 0.32, "top": 0.55, "bottom": 1.15 },
+      "panel_labels": { "letters": "abcdefghijklmnopqrstuvwxyz", "rebuild": true },
+      "axis": {
+        "ticks_in": true,
+        "note_ticks": "layer.x.ticks 是刻度样式位掩码（1=主朝内 2=主朝外 4=次朝内 8=次朝外，可相加），不是标签偏移；读出当前值后只把显示中的主/次刻度重映射为朝内。刻度线粗细是独立属性 tickThickness(主)/mtickThickness(次)，不跟随 thickness。",
+        "title_gap_cm": { "x": 0.80, "y": 0.95, "y_no_labels": 0.55 }
+      },
+      "preserve": {
+        "note": "含 inset / linked_ext 层的图不重排面板，整页等比缩放到 16 cm 宽。",
+        "scale_width_cm": 16.0
+      }
+    },
+
+    "composite": {
+      "label": "手工拼好的多面板大图（期刊整页宽）",
+      "description": "版面不动，整页等比缩到印刷宽度后按角色统一字号/字体/线宽，补 (a)(b)(c) 面板标签并收边。",
+      "used_by": "origin-batch-style/format_composite.py",
+      "output_suffix": "_pub",
+      "style": {
+        "page_w_cm": 17.5,
+        "font": "Times New Roman",
+        "title_pt": 7.5,
+        "tick_pt": 6.5,
+        "series_pt": 6.5,
+        "annot_pt": 5.5,
+        "legend_pt": 6.5,
+        "panel_pt": 8.0,
+        "panel_pad_px": 12,
+        "panel_labels": true,
+        "axis_thickness_pt": 0.75,
+        "tick_thickness_pt": 0.75,
+        "tick_length_pt": 2.6,
+        "line_pt": 0.75,
+        "symbol_pt": 3.0,
+        "rotate_annot_min": 6,
+        "row_gap_cm": 1.21,
+        "bottom_cm": null,
+        "export_dpi": 600
+      },
+      "clamp_roles": ["series", "annot", "legend"],
+      "note_roles": "图例框的 pad 比标注大（0.12 vs 0.05 cm）——字号统一后图例框会长高，贴着框线摆的会压住贴边曲线。"
+    },
+
+    "manuscript": {
+      "label": "期刊投稿单图（审稿回复用，保留作者手摆图例）",
+      "description": "每个窗口只含一个面板、但页面仍是拼版大画布的项目，按单图版式重排。",
+      "used_by": "origin-batch-style/format_thesis_figures.py --keep-legend-pos",
+      "output_suffix": "_thesis",
+      "inherits": "thesis",
+      "overrides": {
+        "style": { "move_legend": false },
+        "layout_key": "1"
+      }
+    }
+  },
+
+  "invariants": {
+    "never_touch": [
+      "数据本身",
+      "坐标轴范围",
+      "曲线颜色与线型",
+      "插入的图片内容（TEM 照片、ChemDraw 结构式）",
+      "跟随数据坐标锚定的标注位置"
+    ],
+    "never_rewrite": {
+      "legend_text": "图例串是独立语法（每条 `|` 或换行分隔一个条目），Origin 先切条目再逐条解析转义；整串外包 \\b() 会让第 1 条变粗体、末尾多出 ')'。判据不能只看 %( —— 按名字以 Legend 开头 或 文本含 \\l( 认定（作者常复制 Text 对象当第二个图例）。",
+      "symbol_font_regions": "\\g(...) 区域用 Symbol 字体，内部常有 \\f:Times New Roman(C) 把个别字符切回正常字体（如 130\\g(°\\f:...(C))）；剥掉内层包装会让 C 变希腊字母 Chi、DMPO 变 ΔΜΠΟ。"
+    }
+  },
+
+  "known_pitfalls": [
+    "page.width/height 单位是 page.resx 像素；用 LabTalk 表达式赋值会被截断成整数像素（23298.99 -> 23298，读回 98.552 mm 而非 98.594）。像素数应在宿主语言里 round() 好再写常量。",
+    "Text 对象必须通过对象句柄设置属性——LabTalk 名字路径遇到叫 Text 的对象会撞保留字静默失败。",
+    "轴标题里的 \\f:Arial(...) / \\pNN(...) 转义会覆盖对象字体字号，必须改写文本剥掉包装；但含 %( 替换串（如 %(?X) 占位标题）不能包 \\b()，否则替换失效标题消失。",
+    "label -p X Y 的坐标是相对当前激活 layer 框架的百分比且不接受负值；框架外定位要先创建再写对象 .x/.y（轴坐标，锚点为文本中心）。",
+    "字号是绝对 pt，而 composite 页面缩到 ~0.60 倍 → 文字相对面板放大约 1.35 倍，原先手工留的水平间隙会被吃光。",
+    "layer.y2.showLabels 是休眠开关：默认模板四条轴全为 1，但右轴整条边未启用时不渲染。判断须同时满足 showLabels>0 且 y2.showAxes 含位 2。",
+    "链接层（unit=7）的框架渲染用陈旧缓存：父层大幅移动后读回值看似正确但渲染错位，且链接状态下写几何被忽略——须先 layer.link=0 再显式写框架。",
+    "layer.x.label.rotate 旋转刻度标签后，下一次渲染会自动重排轴标题并覆盖手工写的 xb.y——需渲染→读回→重写的循环直到位置保住。",
+    "op.save() 之后 LabTalk 的 layer 读数上下文失效（读回 ≈ 目标矩形 × resx/屏幕dpi，纯假象）——验证保存结果要重新打开文件读。",
+    "originpro 没有 op.lt_str，字符串读取是 op.get_lt_str（写错会静默返回 None）。",
+    "expgraph 的 path:= 结尾不能留反斜杠，输出目录必须预先存在，否则 X-Function 静默不执行——判断成功只能比对目标文件 mtime/size。"
+  ]
+}

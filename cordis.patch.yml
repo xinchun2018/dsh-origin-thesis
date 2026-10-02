@@ -1,0 +1,62 @@
+# dsh-origin-thesis — DSH bundle layer
+#
+# 把「论文插图格式」工具注册为 DSH 原生工具（mcp__origin_thesis__*）。
+#
+# 为什么 command 是 .cmd 启动器而不是 python.exe 直连
+# --------------------------------------------------
+# DSH 求值 `!!js` 的沙箱里**没有** `__dirname` / `__filename` / `require`
+# （实测 `typeof __dirname` 直接抛 `ReferenceError: __dirname is not defined`），
+# 只有 `process` 可靠可用。所以 patch 无法在 JS 里算出"本包所在的目录"。
+# 而 Windows 批处理的 `%~dp0` 天然就是"本脚本所在目录"，与 JS 上下文无关，
+# 于是由 start-thesis-mcp.cmd 负责定位自己并挑选解释器 —— 这样整个包可以放在
+# 任何位置，patch 里不需要任何绝对路径。
+#
+# 启动器里的解释器顺序
+# -------------------
+#   1. DSH_THESIS_PYTHON                       （显式指定，最高优先级）
+#   2. 常见位置的 conda 环境 origin            （自动探测）
+#   3. PATH 上的 python                        （最后兜底）
+#   该解释器必须能 `import originpro`（originpro 目前只发 ≤ py3.9 的 wheel）。
+#
+# 设计要点
+# --------
+# ▸ **零 Python 依赖**：thesis_mcp_server.py 自己实现 MCP stdio JSON-RPC 循环，不需要
+#   `mcp` 包，py3.9 / 3.10 都能跑。
+# ▸ **随包自带绘图脚本**：format_thesis_figures.py / format_composite.py /
+#   export_figures.py 已 vendored 到本包目录，开箱可用。想改用自己维护的版本，
+#   把 DSH_THESIS_BATCH_DIR 指向你的 origin-batch-style/ 即可。
+# ▸ 单条目防冲突：本层只插入**一个** mcp-origin-thesis。要改配置请用同 id 的
+#   **config-only** 覆盖（不带 name、不带 insert）。
+#
+# 支持的环境变量
+# --------------
+#   DSH_THESIS_PYTHON     驱动 Origin 的解释器路径（交给启动器）
+#   DSH_THESIS_BATCH_DIR  改用你自己的脚本目录（默认用包内 vendored 副本）
+#   DSH_THESIS_STYLES     改用你自己的 styles.json
+#   DSH_THESIS_BOOT_LOG   设了就把每次启动的环境写成一行 JSON（排障用）
+
+- insert:
+    - id: mcp-origin-thesis
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: origin_thesis
+        transport: stdio
+        # 走批处理启动器：它用 %~dp0 定位自己，并挑一个能 import originpro 的解释器。
+        command: !!js >-
+          process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe'
+        args:
+          - '/c'
+          - !!js >-
+            process.env.USERPROFILE + '\\dsh-vendor\\dsh-origin-thesis\\start-thesis-mcp.cmd'
+        cwd: !!js >-
+          process.env.USERPROFILE + '\\dsh-vendor\\dsh-origin-thesis'
+        env:
+          PYTHONIOENCODING: utf-8
+          PYTHONUNBUFFERED: '1'
+        # 格式化一张图要几十秒（含像素量测闭环、Origin COM 启动），超时给足 30 分钟。
+        failOnStartupError: false
+        toolCallTimeoutMs: 1800000
+    # Self-mount：让插件市场把本 bundle 读成 live/active（index.js 的 apply()
+    # 是空操作，真正的工具来自上面的 insert）。
+    - id: dsh-origin-thesis
+      name: dsh-origin-thesis

@@ -1,0 +1,42 @@
+MIT License
+
+Copyright (c) 2026 dsh-origin-thesis contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Third-party and runtime requirements
+
+1. OriginLab Origin / OriginPro (commercial software, licensed separately)
+   This plugin drives a locally installed copy of Origin through COM
+   automation. It does NOT bundle, redistribute, or sublicense Origin.
+   You must own a valid Origin licence to use these tools.
+
+2. originpro / OriginExt Python packages — BSD licence, Copyright OriginLab
+   https://www.originlab.com
+   Installed by the user (`pip install originpro`), not redistributed here.
+
+3. The figure-formatting scripts vendored in this repository
+   (format_thesis_figures.py, format_composite.py, export_figures.py)
+   originate from the author's own PhD-thesis plotting toolchain and are
+   released here under the same MIT terms by their copyright holder.
+
+4. NumPy (BSD) and Pillow (MIT-CMU) are optional runtime dependencies used by
+   the vendored scripts for render-measurement steps; without them the
+   corresponding self-checks are skipped.

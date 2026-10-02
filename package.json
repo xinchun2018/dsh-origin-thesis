@@ -1,0 +1,60 @@
+{
+  "name": "dsh-origin-thesis",
+  "version": "1.0.0",
+  "description": "Format OriginLab Origin figures to a fixed thesis/journal house style inside DeepSeek Harness: per-layer grid layout, unified fonts and sizes, render-measured axis-title placement, overlap resolution, panel labels, and 600-dpi export with corrected dpi metadata. Ships the plotting scripts; no `mcp` package needed.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "deepseek-harness",
+    "origin",
+    "originlab",
+    "originpro",
+    "scientific-plotting",
+    "thesis",
+    "figure-formatting",
+    "journal-figures",
+    "cordis",
+    "mcp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<your-github-user>/dsh-origin-thesis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<your-github-user>/dsh-origin-thesis/issues"
+  },
+  "homepage": "https://github.com/<your-github-user>/dsh-origin-thesis#readme",
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "thesis_mcp_server.py",
+    "styles.json",
+    "format_thesis_figures.py",
+    "format_composite.py",
+    "export_figures.py",
+    "README.md",
+    "README-origin-batch-style.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "sync_to_vendor.ps1",
+    "start-thesis-mcp.cmd"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "win32"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
