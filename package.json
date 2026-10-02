@@ -25,12 +25,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<your-github-user>/dsh-origin-thesis.git"
+    "url": "git+https://github.com/xinchun2018/dsh-origin-thesis.git"
   },
   "bugs": {
-    "url": "https://github.com/<your-github-user>/dsh-origin-thesis/issues"
+    "url": "https://github.com/xinchun2018/dsh-origin-thesis/issues"
   },
-  "homepage": "https://github.com/<your-github-user>/dsh-origin-thesis#readme",
+  "homepage": "https://github.com/xinchun2018/dsh-origin-thesis#readme",
   "files": [
     "index.js",
     "cordis.patch.yml",

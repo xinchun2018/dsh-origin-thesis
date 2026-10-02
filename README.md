@@ -71,7 +71,7 @@ elsewhere, edit the two `args`/`cwd` values in `cordis.patch.yml` accordingly.
 ### 1. Get the files
 
 ```bat
-git clone https://github.com/<your-github-user>/dsh-origin-thesis.git "%USERPROFILE%\dsh-vendor\dsh-origin-thesis"
+git clone https://github.com/xinchun2018/dsh-origin-thesis.git "%USERPROFILE%\dsh-vendor\dsh-origin-thesis"
 ```
 
 Everything needed at runtime — the server, the style profiles, **and the plotting
